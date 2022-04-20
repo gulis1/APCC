@@ -7,37 +7,21 @@ namespace Qrng {
     open Microsoft.Quantum.Measurement;
     open Microsoft.Quantum.Math;
     open Microsoft.Quantum.Convert;
+    open Microsoft.Quantum.Arithmetic;
 
-    operation RandomBit() : Result {
-
-        use q = Qubit();
-        H(q);
-
-        return M(q);
-    }
-
-    operation GetRandomNumber(max : Int) : Int {
-
-        mutable output = 0; 
+    operation GetRandomInteger(max : Int) : Int {
+        
+        use qubits = Qubit[BitSizeI(max)];
+        mutable resul = 0; 
 
         repeat {
             
-            mutable bits = []; 
-            for idxBit in 1..BitSizeI(max) {
-                set bits += [RandomBit()]; 
-            }
+            ApplyToEach(H, qubits);
+            set resul = MeasureInteger(LittleEndian(qubits));
+            ResetAll(qubits);
 
-            set output = ResultArrayAsInt(bits);
-
-        } until (output <= max);
+        } until (resul <= max);
         
-        return output;
-    }
-
-    // @EntryPoint()
-    operation RandomNumberGenerator() : Unit {
-        
-        let x = GetRandomNumber(100);
-        Message($"Random number: {x}");
+        return resul;
     }
 }
