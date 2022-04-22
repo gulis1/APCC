@@ -1,4 +1,4 @@
-namespace QGrover {
+namespace QGroverResoruces {
 
     open Microsoft.Quantum.Canon;
     open Microsoft.Quantum.Intrinsic;
@@ -74,34 +74,36 @@ namespace QGrover {
         let nIters = Floor(PI() * Sqrt(N) / 4.0);  
 
         mutable res = 0;
-        mutable tries = 1;
+        mutable tries = 1;    
+        
+        Message($"Se van a realizar {nIters} iteraciones.");               
+        for i in 1 .. nIters {
+            GroverIter(qubits, target);  
+        }
 
-        // Repetimos el algoritmo hasta encontrar la solución correcta.
-        repeat {
+        for (pos, bit) in Enumerated(IntAsBoolArray(target, nQubits)) {
             
-            Message($"Empezando intento {tries}: {nIters} iteraciones.");               
-            for i in 1 .. nIters {
-                GroverIter(qubits, target);
-
-                if (i % 10 == 0) {
-                    Message($"  Completada iteracion: {i}");
-                }  
+            mutable odds1 = 0.0;
+            if (bit) {
+                set odds1 = 1.0;
             }
-            Message($"Completado intento {tries}.");
-            
-            set res = MeasureInteger(LittleEndian(qubits));
-            set tries += 1;
-            ResetAll(qubits);
 
-        } until(res == target);
+            AssertMeasurementProbability([PauliZ], [qubits[pos]], One, odds1, "", 0.0);
+        }
+        
+
+        set res = MeasureInteger(LittleEndian(qubits));
+        set tries += 1;
+        ResetAll(qubits);
+
            
         return res;
     }
 
-    // @EntryPoint()
+    @EntryPoint()
     operation RandomNumberGenerator(nqubits: Int, target: Int) : Unit {
         
         let x = Grover(nqubits, target);
-        Message($"\nEncontrado: {x}.");
+        Message($"Encontrado: {x}.\n");
     }
 }
