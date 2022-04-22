@@ -81,7 +81,11 @@ namespace QGrover {
             
             Message($"Empezando intento {tries}: {nIters} iteraciones.");               
             for i in 1 .. nIters {
-                GroverIter(qubits, target);      
+                GroverIter(qubits, target);
+
+                if (i % 10 == 0) {
+                    Message($"  Completada iteracion: {i}");
+                }  
             }
             Message($"Completado intento {tries}.");
             

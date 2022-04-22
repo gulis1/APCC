@@ -11,13 +11,15 @@ namespace Qrng {
 
     operation GetRandomInteger(max : Int) : Int {
         
+        // Reservamos tantos qubits como sean necesarios para representar max.
         use qubits = Qubit[BitSizeI(max)];
-        mutable resul = 0; 
 
+        mutable resul = 0; 
         repeat {
             
-            ApplyToEach(H, qubits);
-            set resul = MeasureInteger(LittleEndian(qubits));
+            ApplyToEach(H, qubits);  // Aplicamos una puerta Hadamard a todos los qubits.
+            set resul = MeasureInteger(LittleEndian(qubits));  // Medimos los qubits, interpretandolos como un entero.
+            
             ResetAll(qubits);
 
         } until (resul <= max);
